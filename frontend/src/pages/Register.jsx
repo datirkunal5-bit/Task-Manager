@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form';
 import { useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import API from '../api/axios';
+import { useAuth } from '../context/AuthContext';
 
 function Register() {
   const navigate = useNavigate();
