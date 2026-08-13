@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 
 function Register() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const {
     register,
     handleSubmit,
@@ -15,7 +16,7 @@ function Register() {
   const onSubmit = async (data) => {
     try {
       const response = await API.post('/auth/register', data);
-      localStorage.setItem('token', response.data.token);
+      login(response.data, response.data.token);
       toast.success('Registration successful!');
       navigate('/dashboard');
     } catch (error) {
