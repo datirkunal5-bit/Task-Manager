@@ -73,59 +73,66 @@ function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-6 sm:p-10">
-  <div className="max-w-6xl mx-auto">
-    <div className="flex justify-between items-center mb-10">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Dashboard</h1>
-        <p className="text-gray-500 mt-1">Welcome back, {user?.name?.split(' ')[0]}</p>
-      </div>
-      <button
-        onClick={logout}
-        className="text-sm font-medium text-gray-500 hover:text-red-600 border border-gray-200 hover:border-red-200 px-4 py-2 rounded-lg transition-colors"
-      >
-        Logout
-      </button>
-    </div>
+      <div className="max-w-6xl mx-auto">
+        <div className="flex justify-between items-center mb-10">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Dashboard</h1>
+            <p className="text-gray-500 mt-1">Welcome back, {user?.name?.split(' ')[0]}</p>
+          </div>
+          <button
+            onClick={logout}
+            className="text-sm font-medium text-gray-500 hover:text-red-600 border border-gray-200 hover:border-red-200 px-4 py-2 rounded-lg transition-colors"
+          >
+            Logout
+          </button>
+        </div>
 
-    <div className="flex justify-between items-center mb-6">
-      <h2 className="text-lg font-semibold text-gray-800">
-        Your Projects
-        <span className="text-gray-400 font-normal ml-2">{projects.length}</span>
-      </h2>
-      <button
-        onClick={handleOpenCreateModal}
-        className="bg-gray-900 text-white text-sm font-medium px-4 py-2.5 rounded-lg hover:bg-gray-800 active:scale-95 transition-all"
-      >
-        + New Project
-      </button>
-    </div>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-lg font-semibold text-gray-800">
+            Your Projects
+            <span className="text-gray-400 font-normal ml-2">{projects.length}</span>
+          </h2>
+          <button
+            onClick={handleOpenCreateModal}
+            className="bg-gray-900 text-white text-sm font-medium px-4 py-2.5 rounded-lg hover:bg-gray-800 active:scale-95 transition-all"
+          >
+            + New Project
+          </button>
+        </div>
 
-    {loading ? (
-      <p className="text-gray-500">Loading projects...</p>
-    ) : projects.length === 0 ? (
-      <div className="bg-white rounded-2xl border border-dashed border-gray-200 p-16 text-center">
-        <p className="text-gray-400 mb-4">No projects yet</p>
-        <button
-          onClick={handleOpenCreateModal}
-          className="text-blue-600 font-medium hover:underline"
-        >
-          Create your first project
-        </button>
+        {loading ? (
+          <p className="text-gray-500">Loading projects...</p>
+        ) : projects.length === 0 ? (
+          <div className="bg-white rounded-2xl border border-dashed border-gray-200 p-16 text-center">
+            <p className="text-gray-400 mb-4">No projects yet</p>
+            <button
+              onClick={handleOpenCreateModal}
+              className="text-blue-600 font-medium hover:underline"
+            >
+              Create your first project
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {projects.map((project) => (
+              <ProjectCard
+                key={project._id}
+                project={project}
+                onEdit={handleOpenEditModal}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
+        )}
       </div>
-    ) : (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {projects.map((project) => (
-          <ProjectCard
-            key={project._id}
-            project={project}
-            onEdit={handleOpenEditModal}
-            onDelete={handleDelete}
-          />
-        ))}
-      </div>
-    )}
-  </div>
-</div>
+
+      <ProjectModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onSubmit={handleSubmit}
+        editingProject={editingProject}
+      />
+    </div>
   );
 }
 
