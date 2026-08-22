@@ -7,6 +7,9 @@ const projectRoutes = require('./routes/projectRoutes');
 
 dotenv.config();
 connectDB();
+const taskRoutes = require('./routes/taskRoutes');
+// ...
+app.use('/api/tasks', taskRoutes);
 
 const app = express();
 
