@@ -1,4 +1,4 @@
-const Task = require('./models/Task');
+const Task = require('../models/Task');
 const Project = require('../models/Project');
 
 const verifyProjectOwnership = async (projectId, userId) => {
