@@ -1,4 +1,8 @@
+import { useNavigate } from 'react-router-dom';
+
 function ProjectCard({ project, onEdit, onDelete }) {
+  const navigate = useNavigate();
+
   const statusStyles = {
     active: 'bg-blue-50 text-blue-700 ring-1 ring-blue-200',
     completed: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200',
@@ -21,7 +25,10 @@ function ProjectCard({ project, onEdit, onDelete }) {
 
   return (
     <div className="group bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
-      <div>
+      <div
+        onClick={() => navigate(`/projects/${project._id}`)}
+        className="cursor-pointer"
+      >
         <div className="flex justify-between items-start mb-3">
           <h3 className="font-semibold text-lg text-gray-900 leading-snug pr-2">
             {project.title}
@@ -46,16 +53,16 @@ function ProjectCard({ project, onEdit, onDelete }) {
         )}
       </div>
 
-      <div className="flex gap-4 mt-5 pt-4 border-t border-gray-100 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="flex gap-2 mt-5 pt-4 border-t border-gray-100">
         <button
           onClick={() => onEdit(project)}
-          className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors"
+          className="flex-1 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-blue-50 hover:text-blue-600 py-2 rounded-lg transition-colors"
         >
           Edit
         </button>
         <button
           onClick={() => onDelete(project._id)}
-          className="text-sm font-medium text-gray-600 hover:text-red-600 transition-colors"
+          className="flex-1 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-red-50 hover:text-red-600 py-2 rounded-lg transition-colors"
         >
           Delete
         </button>
