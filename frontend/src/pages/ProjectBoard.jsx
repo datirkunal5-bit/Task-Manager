@@ -1,7 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import {
+  DndContext,
+  closestCorners,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
 import API from '../api/axios';
-import TaskCard from '../components/TaskCard';
+import KanbanColumn from '../components/KanbanColumn';
 import TaskModal from '../components/TaskModal';
 import toast from 'react-hot-toast';
 
@@ -20,6 +27,12 @@ function ProjectBoard() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 5 },
+    })
+  );
 
   useEffect(() => {
     fetchData();
@@ -84,6 +97,37 @@ function ProjectBoard() {
     }
   };
 
+  const handleDragEnd = async (event) => {
+    const { active, over } = event;
+
+    if (!over) return;
+
+    const taskId = active.id;
+    const draggedTask = tasks.find((t) => t._id === taskId);
+    if (!draggedTask) return;
+
+    let newStatus = over.id;
+
+    const overTask = tasks.find((t) => t._id === over.id);
+    if (overTask) {
+      newStatus = overTask.status;
+    }
+
+    if (draggedTask.status === newStatus) return;
+
+    const previousTasks = tasks;
+    setTasks((prev) =>
+      prev.map((t) => (t._id === taskId ? { ...t, status: newStatus } : t))
+    );
+
+    try {
+      await API.put(`/tasks/${taskId}`, { status: newStatus });
+    } catch (error) {
+      setTasks(previousTasks);
+      toast.error('Failed to move task');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -115,32 +159,20 @@ function ProjectBoard() {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {COLUMNS.map((col) => {
-            const columnTasks = tasks.filter((t) => t.status === col.key);
-            return (
-              <div key={col.key} className="bg-gray-100 rounded-xl p-3">
-                <h3 className="font-semibold text-gray-700 text-sm mb-3 px-1 flex items-center justify-between">
-                  {col.label}
-                  <span className="text-gray-400 font-normal">{columnTasks.length}</span>
-                </h3>
-                <div className="space-y-3">
-                  {columnTasks.map((task) => (
-                    <TaskCard
-                      key={task._id}
-                      task={task}
-                      onEdit={handleOpenEditModal}
-                      onDelete={handleDelete}
-                    />
-                  ))}
-                  {columnTasks.length === 0 && (
-                    <p className="text-gray-400 text-xs text-center py-4">No tasks</p>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        <DndContext sensors={sensors} collisionDetection={closestCorners} onDragEnd={handleDragEnd}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {COLUMNS.map((col) => (
+              <KanbanColumn
+                key={col.key}
+                id={col.key}
+                label={col.label}
+                tasks={tasks.filter((t) => t.status === col.key)}
+                onEdit={handleOpenEditModal}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
+        </DndContext>
       </div>
 
       <TaskModal
