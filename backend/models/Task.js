@@ -1,5 +1,33 @@
 const mongoose = require('mongoose');
 
+const commentSchema = new mongoose.Schema(
+  {
+    text: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    author: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+  },
+  { timestamps: true }
+);
+
+const checklistItemSchema = new mongoose.Schema({
+  text: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  completed: {
+    type: Boolean,
+    default: false,
+  },
+});
+
 const taskSchema = new mongoose.Schema(
   {
     title: {
@@ -43,6 +71,8 @@ const taskSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
+    comments: [commentSchema],
+    checklist: [checklistItemSchema],
   },
   { timestamps: true }
 );
