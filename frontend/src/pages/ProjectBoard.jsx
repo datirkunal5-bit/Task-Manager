@@ -175,12 +175,13 @@ function ProjectBoard() {
         </DndContext>
       </div>
 
-      <TaskModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onSubmit={handleSubmit}
-        editingTask={editingTask}
-      />
+  <TaskModal
+  isOpen={isModalOpen}
+  onClose={handleCloseModal}
+  onSubmit={handleSubmit}
+  editingTask={editingTask}
+  onRefresh={fetchData}
+/>
     </div>
   );
 }
