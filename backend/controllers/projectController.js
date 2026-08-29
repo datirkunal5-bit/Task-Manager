@@ -1,4 +1,5 @@
 const Project = require('../models/Project');
+const Task = require('../models/Task');
 
 const createProject = async (req, res) => {
   try {
@@ -96,10 +97,39 @@ const deleteProject = async (req, res) => {
   }
 };
 
+const getDashboardStats = async (req, res) => {
+  try {
+    const projects = await Project.find({ owner: req.user._id });
+    const projectIds = projects.map((p) => p._id);
+
+    const tasks = await Task.find({ project: { $in: projectIds } });
+
+    const stats = {
+      totalProjects: projects.length,
+      activeProjects: projects.filter((p) => p.status === 'active').length,
+      completedProjects: projects.filter((p) => p.status === 'completed').length,
+      totalTasks: tasks.length,
+      todoTasks: tasks.filter((t) => t.status === 'todo').length,
+      inProgressTasks: tasks.filter((t) => t.status === 'in-progress').length,
+      reviewTasks: tasks.filter((t) => t.status === 'review').length,
+      completedTasks: tasks.filter((t) => t.status === 'completed').length,
+      highPriorityTasks: tasks.filter((t) => t.priority === 'high' && t.status !== 'completed').length,
+      recentTasks: tasks
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 5),
+    };
+
+    res.status(200).json(stats);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
 module.exports = {
   createProject,
   getProjects,
   getProjectById,
   updateProject,
   deleteProject,
+  getDashboardStats,
 };

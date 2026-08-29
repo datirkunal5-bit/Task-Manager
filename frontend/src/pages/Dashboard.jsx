@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 function Dashboard() {
   const { user, logout } = useAuth();
   const [projects, setProjects] = useState([]);
+  const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
@@ -15,6 +16,7 @@ function Dashboard() {
 
   useEffect(() => {
     fetchProjects();
+    fetchStats();
   }, []);
 
   const fetchProjects = async () => {
@@ -25,6 +27,15 @@ function Dashboard() {
       toast.error('Failed to load projects');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      const response = await API.get('/projects/stats');
+      setStats(response.data);
+    } catch (error) {
+      console.error('Failed to load stats');
     }
   };
 
@@ -64,6 +75,7 @@ function Dashboard() {
       }
       handleCloseModal();
       fetchProjects();
+      fetchStats();
     } catch (error) {
       const message = error.response?.data?.message || 'Something went wrong';
       toast.error(message);
@@ -76,6 +88,7 @@ function Dashboard() {
       await API.delete(`/projects/${id}`);
       toast.success('Project deleted');
       fetchProjects();
+      fetchStats();
     } catch (error) {
       toast.error('Failed to delete project');
     }
@@ -84,7 +97,7 @@ function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-50 p-6 sm:p-10">
       <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-10">
+        <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Dashboard</h1>
             <p className="text-gray-500 mt-1">Welcome back, {user?.name?.split(' ')[0]}</p>
@@ -96,6 +109,35 @@ function Dashboard() {
             Logout
           </button>
         </div>
+
+        {stats && (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
+            <div className="bg-white rounded-xl border border-gray-100 p-4">
+              <p className="text-gray-400 text-xs font-medium uppercase tracking-wide mb-1">
+                Projects
+              </p>
+              <p className="text-2xl font-bold text-gray-900">{stats.totalProjects}</p>
+            </div>
+            <div className="bg-white rounded-xl border border-gray-100 p-4">
+              <p className="text-gray-400 text-xs font-medium uppercase tracking-wide mb-1">
+                Total Tasks
+              </p>
+              <p className="text-2xl font-bold text-gray-900">{stats.totalTasks}</p>
+            </div>
+            <div className="bg-white rounded-xl border border-gray-100 p-4">
+              <p className="text-gray-400 text-xs font-medium uppercase tracking-wide mb-1">
+                Completed
+              </p>
+              <p className="text-2xl font-bold text-emerald-600">{stats.completedTasks}</p>
+            </div>
+            <div className="bg-white rounded-xl border border-gray-100 p-4">
+              <p className="text-gray-400 text-xs font-medium uppercase tracking-wide mb-1">
+                High Priority
+              </p>
+              <p className="text-2xl font-bold text-red-600">{stats.highPriorityTasks}</p>
+            </div>
+          </div>
+        )}
 
         <div className="flex flex-wrap justify-between items-center gap-3 mb-6">
           <h2 className="text-lg font-semibold text-gray-800">
