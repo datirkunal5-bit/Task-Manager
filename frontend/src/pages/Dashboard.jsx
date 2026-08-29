@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import API from '../api/axios';
 import ProjectCard from '../components/ProjectCard';
@@ -11,6 +11,7 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     fetchProjects();
@@ -26,6 +27,16 @@ function Dashboard() {
       setLoading(false);
     }
   };
+
+  const filteredProjects = useMemo(() => {
+    if (!searchQuery.trim()) return projects;
+    const q = searchQuery.toLowerCase();
+    return projects.filter(
+      (p) =>
+        p.title.toLowerCase().includes(q) ||
+        p.description?.toLowerCase().includes(q)
+    );
+  }, [projects, searchQuery]);
 
   const handleOpenCreateModal = () => {
     setEditingProject(null);
@@ -61,7 +72,6 @@ function Dashboard() {
 
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this project?')) return;
-
     try {
       await API.delete(`/projects/${id}`);
       toast.success('Project deleted');
@@ -87,34 +97,49 @@ function Dashboard() {
           </button>
         </div>
 
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-wrap justify-between items-center gap-3 mb-6">
           <h2 className="text-lg font-semibold text-gray-800">
             Your Projects
-            <span className="text-gray-400 font-normal ml-2">{projects.length}</span>
+            <span className="text-gray-400 font-normal ml-2">{filteredProjects.length}</span>
           </h2>
-          <button
-            onClick={handleOpenCreateModal}
-            className="bg-gray-900 text-white text-sm font-medium px-4 py-2.5 rounded-lg hover:bg-gray-800 active:scale-95 transition-all"
-          >
-            + New Project
-          </button>
+          <div className="flex gap-3">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search projects..."
+              className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-48"
+            />
+            <button
+              onClick={handleOpenCreateModal}
+              className="bg-gray-900 text-white text-sm font-medium px-4 py-2.5 rounded-lg hover:bg-gray-800 active:scale-95 transition-all"
+            >
+              + New Project
+            </button>
+          </div>
         </div>
 
         {loading ? (
           <p className="text-gray-500">Loading projects...</p>
-        ) : projects.length === 0 ? (
+        ) : filteredProjects.length === 0 ? (
           <div className="bg-white rounded-2xl border border-dashed border-gray-200 p-16 text-center">
-            <p className="text-gray-400 mb-4">No projects yet</p>
-            <button
-              onClick={handleOpenCreateModal}
-              className="text-blue-600 font-medium hover:underline"
-            >
-              Create your first project
-            </button>
+            {searchQuery ? (
+              <p className="text-gray-400">No projects match "{searchQuery}"</p>
+            ) : (
+              <>
+                <p className="text-gray-400 mb-4">No projects yet</p>
+                <button
+                  onClick={handleOpenCreateModal}
+                  className="text-blue-600 font-medium hover:underline"
+                >
+                  Create your first project
+                </button>
+              </>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {projects.map((project) => (
+            {filteredProjects.map((project) => (
               <ProjectCard
                 key={project._id}
                 project={project}

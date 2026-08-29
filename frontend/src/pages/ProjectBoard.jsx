@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   DndContext,
@@ -28,6 +28,10 @@ function ProjectBoard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
 
+  const [searchQuery, setSearchQuery] = useState('');
+  const [priorityFilter, setPriorityFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('newest');
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: { distance: 5 },
@@ -37,6 +41,13 @@ function ProjectBoard() {
   useEffect(() => {
     fetchData();
   }, [projectId]);
+
+  useEffect(() => {
+    if (editingTask) {
+      const updated = tasks.find((t) => t._id === editingTask._id);
+      if (updated) setEditingTask(updated);
+    }
+  }, [tasks]);
 
   const fetchData = async () => {
     try {
@@ -53,6 +64,41 @@ function ProjectBoard() {
       setLoading(false);
     }
   };
+
+  const filteredAndSortedTasks = useMemo(() => {
+    let result = [...tasks];
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(
+        (t) =>
+          t.title.toLowerCase().includes(q) ||
+          t.description?.toLowerCase().includes(q) ||
+          t.labels?.some((label) => label.toLowerCase().includes(q))
+      );
+    }
+
+    if (priorityFilter !== 'all') {
+      result = result.filter((t) => t.priority === priorityFilter);
+    }
+
+    const priorityOrder = { high: 0, medium: 1, low: 2 };
+    if (sortBy === 'priority') {
+      result.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+    } else if (sortBy === 'dueDate') {
+      result.sort((a, b) => {
+        if (!a.dueDate) return 1;
+        if (!b.dueDate) return -1;
+        return new Date(a.dueDate) - new Date(b.dueDate);
+      });
+    } else if (sortBy === 'newest') {
+      result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    } else if (sortBy === 'oldest') {
+      result.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    }
+
+    return result;
+  }, [tasks, searchQuery, priorityFilter, sortBy]);
 
   const handleOpenCreateModal = () => {
     setEditingTask(null);
@@ -99,7 +145,6 @@ function ProjectBoard() {
 
   const handleDragEnd = async (event) => {
     const { active, over } = event;
-
     if (!over) return;
 
     const taskId = active.id;
@@ -107,7 +152,6 @@ function ProjectBoard() {
     if (!draggedTask) return;
 
     let newStatus = over.id;
-
     const overTask = tasks.find((t) => t._id === over.id);
     if (overTask) {
       newStatus = overTask.status;
@@ -146,7 +190,7 @@ function ProjectBoard() {
           ← Back to Dashboard
         </button>
 
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{project?.title}</h1>
             <p className="text-gray-500 text-sm mt-1">{project?.description}</p>
@@ -159,6 +203,50 @@ function ProjectBoard() {
           </button>
         </div>
 
+        <div className="flex flex-wrap gap-3 mb-6 bg-white p-3 rounded-xl border border-gray-100">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search tasks..."
+            className="flex-1 min-w-[180px] px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+
+          <select
+            value={priorityFilter}
+            onChange={(e) => setPriorityFilter(e.target.value)}
+            className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="all">All Priorities</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="priority">Priority</option>
+            <option value="dueDate">Due Date</option>
+          </select>
+
+          {(searchQuery || priorityFilter !== 'all') && (
+            <button
+              onClick={() => {
+                setSearchQuery('');
+                setPriorityFilter('all');
+              }}
+              className="text-sm text-gray-500 hover:text-red-600 px-3 py-2"
+            >
+              Clear filters
+            </button>
+          )}
+        </div>
+
         <DndContext sensors={sensors} collisionDetection={closestCorners} onDragEnd={handleDragEnd}>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {COLUMNS.map((col) => (
@@ -166,7 +254,7 @@ function ProjectBoard() {
                 key={col.key}
                 id={col.key}
                 label={col.label}
-                tasks={tasks.filter((t) => t.status === col.key)}
+                tasks={filteredAndSortedTasks.filter((t) => t.status === col.key)}
                 onEdit={handleOpenEditModal}
                 onDelete={handleDelete}
               />
@@ -175,13 +263,13 @@ function ProjectBoard() {
         </DndContext>
       </div>
 
-  <TaskModal
-  isOpen={isModalOpen}
-  onClose={handleCloseModal}
-  onSubmit={handleSubmit}
-  editingTask={editingTask}
-  onRefresh={fetchData}
-/>
+      <TaskModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onSubmit={handleSubmit}
+        editingTask={editingTask}
+        onRefresh={fetchData}
+      />
     </div>
   );
 }
