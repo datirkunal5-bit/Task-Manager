@@ -33,6 +33,10 @@ export function AuthProvider({ children }) {
     setUser(userData);
   };
 
+  const updateUser = (updatedData) => {
+    setUser((prevUser) => ({ ...prevUser, ...updatedData }));
+  };
+
   const logout = () => {
     localStorage.removeItem('token');
     setUser(null);

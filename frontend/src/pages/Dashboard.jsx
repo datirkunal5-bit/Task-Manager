@@ -4,6 +4,7 @@ import API from '../api/axios';
 import ProjectCard from '../components/ProjectCard';
 import ProjectModal from '../components/ProjectModal';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 function Dashboard() {
   const { user, logout } = useAuth();
@@ -13,6 +14,7 @@ function Dashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchProjects();
@@ -109,6 +111,20 @@ function Dashboard() {
             Logout
           </button>
         </div>
+        <div className="flex items-center gap-3">
+  <button
+    onClick={() => navigate('/profile')}
+    className="text-sm font-medium text-gray-500 hover:text-gray-800 border border-gray-200 px-4 py-2 rounded-lg transition-colors"
+  >
+    Profile
+  </button>
+  <button
+    onClick={logout}
+    className="text-sm font-medium text-gray-500 hover:text-red-600 border border-gray-200 hover:border-red-200 px-4 py-2 rounded-lg transition-colors"
+  >
+    Logout
+  </button>
+</div>
 
         {stats && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">

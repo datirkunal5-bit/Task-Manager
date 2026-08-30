@@ -4,6 +4,17 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import ProjectBoard from './pages/ProjectBoard';
 import ProtectedRoute from './components/ProtectedRoute';
+import Profile from './pages/Profile';
+
+// ... inside <Routes>
+<Route
+  path="/profile"
+  element={
+    <ProtectedRoute>
+      <Profile />
+    </ProtectedRoute>
+  }
+/>
 
 function App() {
   return (
