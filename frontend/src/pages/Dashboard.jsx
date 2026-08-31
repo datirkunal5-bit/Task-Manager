@@ -5,7 +5,7 @@ import ProjectCard from '../components/ProjectCard';
 import ProjectModal from '../components/ProjectModal';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
-
+import { useTheme } from '../context/ThemeContext';
 function Dashboard() {
   const { user, logout } = useAuth();
   const [projects, setProjects] = useState([]);
@@ -15,6 +15,7 @@ function Dashboard() {
   const [editingProject, setEditingProject] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
+  const { isDark, toggleTheme } = useTheme();
 
   useEffect(() => {
     fetchProjects();
@@ -97,11 +98,11 @@ function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 sm:p-10">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 p-6 sm:p-10 transition-colors">
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Dashboard</h1>
+           <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Dashboard</h1>
             <p className="text-gray-500 mt-1">Welcome back, {user?.name?.split(' ')[0]}</p>
           </div>
           <button
@@ -118,6 +119,12 @@ function Dashboard() {
   >
     Profile
   </button>
+  <button
+  onClick={toggleTheme}
+  className="text-sm font-medium text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 border border-gray-200 dark:border-gray-700 px-3 py-2 rounded-lg transition-colors"
+>
+  {isDark ? '☀️' : '🌙'}
+</button>
   <button
     onClick={logout}
     className="text-sm font-medium text-gray-500 hover:text-red-600 border border-gray-200 hover:border-red-200 px-4 py-2 rounded-lg transition-colors"
