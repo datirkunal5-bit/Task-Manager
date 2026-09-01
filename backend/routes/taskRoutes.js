@@ -1,4 +1,5 @@
 const express = require('express');
+router.route('/notifications').get(getNotifications);
 const router = express.Router();
 const {
   createTask,
