@@ -12,9 +12,9 @@ function TaskCard({ task, onEdit, onDelete }) {
   };
 
   const priorityStyles = {
-    low: 'bg-gray-100 text-gray-600',
-    medium: 'bg-amber-100 text-amber-700',
-    high: 'bg-red-100 text-red-700',
+    low: 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400',
+    medium: 'bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400',
+    high: 'bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-400',
   };
 
   return (
@@ -23,10 +23,10 @@ function TaskCard({ task, onEdit, onDelete }) {
       style={style}
       {...attributes}
       {...listeners}
-      className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing"
+      className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-4 hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing"
     >
       <div className="flex justify-between items-start mb-2">
-        <h4 className="font-medium text-gray-900 text-sm leading-snug pr-2">
+        <h4 className="font-medium text-gray-900 dark:text-white text-sm leading-snug pr-2">
           {task.title}
         </h4>
         <span
@@ -37,7 +37,9 @@ function TaskCard({ task, onEdit, onDelete }) {
       </div>
 
       {task.description && (
-        <p className="text-gray-500 text-xs mb-3 line-clamp-2">{task.description}</p>
+        <p className="text-gray-500 dark:text-gray-400 text-xs mb-3 line-clamp-2">
+          {task.description}
+        </p>
       )}
 
       {task.labels?.length > 0 && (
@@ -45,7 +47,7 @@ function TaskCard({ task, onEdit, onDelete }) {
           {task.labels.map((label) => (
             <span
               key={label}
-              className="text-[10px] bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-md"
+              className="text-[10px] bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded-md"
             >
               {label}
             </span>
@@ -54,26 +56,26 @@ function TaskCard({ task, onEdit, onDelete }) {
       )}
 
       {task.assignedTo && (
-        <div className="flex items-center gap-1.5 text-xs text-gray-400 mt-2">
-          <div className="w-5 h-5 rounded-full bg-gray-200 flex items-center justify-center text-[10px] font-medium text-gray-600">
+        <div className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500 mt-2">
+          <div className="w-5 h-5 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-[10px] font-medium text-gray-600 dark:text-gray-300">
             {task.assignedTo.name?.[0]?.toUpperCase()}
           </div>
           {task.assignedTo.name}
         </div>
       )}
 
-      <div className="flex gap-3 mt-3 pt-2 border-t border-gray-50">
+      <div className="flex gap-3 mt-3 pt-2 border-t border-gray-50 dark:border-gray-800">
         <button
           onPointerDown={(e) => e.stopPropagation()}
           onClick={() => onEdit(task)}
-          className="text-[11px] text-gray-400 hover:text-blue-500 transition-colors"
+          className="text-[11px] text-gray-400 dark:text-gray-500 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
         >
           Edit
         </button>
         <button
           onPointerDown={(e) => e.stopPropagation()}
           onClick={() => onDelete(task._id)}
-          className="text-[11px] text-gray-400 hover:text-red-500 transition-colors"
+          className="text-[11px] text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
         >
           Delete
         </button>

@@ -8,13 +8,13 @@ function KanbanColumn({ id, label, tasks, onEdit, onDelete }) {
   return (
     <div
       ref={setNodeRef}
-      className={`bg-gray-100 rounded-xl p-3 min-h-[200px] transition-colors ${
-        isOver ? 'bg-blue-50 ring-2 ring-blue-300' : ''
+      className={`bg-gray-100 dark:bg-gray-900/50 rounded-xl p-3 min-h-[200px] transition-colors ${
+        isOver ? 'bg-blue-50 dark:bg-blue-950/50 ring-2 ring-blue-300 dark:ring-blue-700' : ''
       }`}
     >
-      <h3 className="font-semibold text-gray-700 text-sm mb-3 px-1 flex items-center justify-between">
+      <h3 className="font-semibold text-gray-700 dark:text-gray-300 text-sm mb-3 px-1 flex items-center justify-between">
         {label}
-        <span className="text-gray-400 font-normal">{tasks.length}</span>
+        <span className="text-gray-400 dark:text-gray-500 font-normal">{tasks.length}</span>
       </h3>
 
       <SortableContext items={tasks.map((t) => t._id)} strategy={verticalListSortingStrategy}>
@@ -23,7 +23,7 @@ function KanbanColumn({ id, label, tasks, onEdit, onDelete }) {
             <TaskCard key={task._id} task={task} onEdit={onEdit} onDelete={onDelete} />
           ))}
           {tasks.length === 0 && (
-            <p className="text-gray-400 text-xs text-center py-4">No tasks</p>
+            <p className="text-gray-400 dark:text-gray-600 text-xs text-center py-4">No tasks</p>
           )}
         </div>
       </SortableContext>
