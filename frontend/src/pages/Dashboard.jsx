@@ -1,3 +1,4 @@
+import NotificationBell from '../components/NotificationBell';
 import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../context/AuthContext';
 import API from '../api/axios';
@@ -131,7 +132,14 @@ function Dashboard() {
   >
     Logout
   </button>
+  <div className="flex items-center gap-3">
+  <NotificationBell />
+  <button onClick={toggleTheme} ...>...</button>
+  <button onClick={() => navigate('/profile')} ...>Profile</button>
+  <button onClick={logout} ...>Logout</button>
 </div>
+</div>
+
 
         {stats && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
