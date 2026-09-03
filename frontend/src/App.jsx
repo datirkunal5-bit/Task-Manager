@@ -3,18 +3,8 @@ import Register from './pages/Register';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import ProjectBoard from './pages/ProjectBoard';
-import ProtectedRoute from './components/ProtectedRoute';
 import Profile from './pages/Profile';
-
-// ... inside <Routes>
-<Route
-  path="/profile"
-  element={
-    <ProtectedRoute>
-      <Profile />
-    </ProtectedRoute>
-  }
-/>
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
@@ -35,6 +25,14 @@ function App() {
         element={
           <ProtectedRoute>
             <ProjectBoard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Profile />
           </ProtectedRoute>
         }
       />

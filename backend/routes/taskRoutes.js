@@ -1,5 +1,4 @@
 const express = require('express');
-router.route('/notifications').get(getNotifications);
 const router = express.Router();
 const {
   createTask,
@@ -12,10 +11,13 @@ const {
   addChecklistItem,
   toggleChecklistItem,
   deleteChecklistItem,
+  getNotifications,
 } = require('../controllers/taskController');
 const { protect } = require('../middleware/authMiddleware');
 
 router.use(protect);
+
+router.route('/notifications').get(getNotifications);
 
 router.route('/').post(createTask);
 router.route('/project/:projectId').get(getTasksByProject);
